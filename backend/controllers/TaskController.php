@@ -42,6 +42,25 @@ switch ($method) {
                 echo json_encode(array("message" => "Dados incompletos!"));
             }
             break;
+            
+        case 'PUT':
+            $data = json_decode(file_get_contents("php://input"));
+            if (!empty($data->id) && !empty($data->status)) {
+                $task->id = $data->id;
+                $task->status = $data->status;
+    
+                if ($task->updateStatus()) {
+                    http_response_code(200);
+                    echo json_encode(array("message" => "Status da tarefa atualizados!"));
+                } else {
+                    http_response_code(503);
+                    echo json_encode(array("message" => "Não foi possível atualizar sua tarefa!"));
+                }
+            } else {
+                http_response_code(400);
+                echo json_encode(array("message" => "Dados incompletos!"));
+            }
+            break;
         
     default:
     http_response_code(405);

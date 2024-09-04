@@ -59,4 +59,29 @@ class TaskModel {
         return false;
     }
 
+    public function updateStatus() {
+        $query = "UPDATE " . $this->table_name . " SET status = ? WHERE id = ?;";
+
+        if ($stmt = $this->conn->prepare($query)) {
+            $stmt->bind_param("si", $this->status, $this->id);
+
+            if ($stmt->execute()) {
+                if ($stmt->affected_rows > 0) {
+                    $stmt->close();
+                    return true;
+                }else{
+                    $stmt->close();
+                    return false;
+                }
+            } else {
+                $stmt->close();
+                return false;
+            }
+
+            $stmt->close();
+        }
+
+        return false;
+    }
+
 }
