@@ -84,4 +84,27 @@ class TaskModel {
         return false;
     }
 
+    public function deleteTask() {
+        $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+    
+        if ($stmt = $this->conn->prepare($query)) {
+            $stmt->bind_param("i", $this->id);
+    
+            if ($stmt->execute()) {
+                if ($stmt->affected_rows > 0) {
+                    $stmt->close();
+                    return true; 
+                } else {
+                    $stmt->close();
+                    return false; 
+                }
+            } else {
+                $stmt->close();
+                return false; 
+            }
+        }
+    
+        return false; 
+    }
+
 }

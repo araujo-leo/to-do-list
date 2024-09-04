@@ -61,6 +61,20 @@ switch ($method) {
                 echo json_encode(array("message" => "Dados incompletos!"));
             }
             break;
+            
+        case 'DELETE':
+            $data = json_decode(file_get_contents("php://input"));
+            if(!empty($data->id)){
+                $task->id = $data->id;
+                if($task->deleteTask()){
+                    http_response_code(200);
+                    echo json_encode(array("message" => "Tarefa deletada com sucesso!"));
+                }else{
+                    http_response_code(400);
+                    echo json_encode(array("message" => "Não foi possível deletar a tarefa, por favor tente novamente."));
+                }
+            }
+            break;
         
     default:
     http_response_code(405);
