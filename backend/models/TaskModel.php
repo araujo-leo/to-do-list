@@ -32,4 +32,31 @@ class TaskModel {
         }
     }
 
+    public function create() {
+
+        $query = "INSERT INTO " . $this->table_name . " (name) VALUES (?);";
+
+
+        if ($stmt = $this->conn->prepare($query)) {
+            $stmt->bind_param("s", $this->name);
+
+            if ($stmt->execute()) {
+                if ($stmt->affected_rows > 0) {
+                    $stmt->close();
+                    return true;
+                }else{
+                    $stmt->close();
+                    return false; 
+                }
+            } else {
+                $stmt->close();
+                return false;
+            }
+
+            $stmt->close();
+        }
+
+        return false;
+    }
+
 }
