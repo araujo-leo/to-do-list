@@ -17,8 +17,5 @@ $requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $baseFolder = '/to-do-list/backend/api';
 $requestUri = str_replace($baseFolder, '', $requestUri);
 
-// Adicionar log para depuração
-error_log("Requisição URI: " . $requestUri);
-
 // Tratar a requisição
 $routes->handleRequest($requestUri);
