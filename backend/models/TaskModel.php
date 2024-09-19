@@ -22,7 +22,6 @@ class TaskModel {
 
                 return $result; 
             } else {
-                die();
                 return $result;
                 $stmt->close();
                 return false; 
