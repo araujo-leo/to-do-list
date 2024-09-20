@@ -15,6 +15,10 @@ class Router {
         $this->addRoute('POST', $route, $callback);
     }
 
+    public function put($route, $callback) {
+        $this->addRoute('PUT', $route, $callback);
+    }
+
     private function addRoute($method, $route, $callback) {
         $this->routes[] = compact('method', 'route', 'callback');
     }

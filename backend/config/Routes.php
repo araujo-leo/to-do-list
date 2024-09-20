@@ -18,7 +18,7 @@ class Routes {
         $router->put('/task', function() {
             require_once "../controllers/TaskController.php";
             $taskController = new TaskController();
-            $taskController->updateStatus(); 
+            $taskController->update(); 
         });
 
         
