@@ -48,15 +48,26 @@ class TaskController
 
     public function update() {
         $data = json_decode(file_get_contents("php://input"));
-        
-        if (!empty($data->id) && !empty($data->status)) {
-            $this->task->id = $data->id;
-            $this->task->name = $data->name;
-            $this->task->status = $data->status;
 
+    
+        
+        if (!empty($data->id) && (!empty($data->status) || !empty($data->name))) {
+
+            $this->task->id = $data->id;
+            
+            if (isset($data->name)) {
+                $this->task->name = $data->name;
+            }
+            
+            if (isset($data->status)) {
+                $this->task->status = $data->status;
+            }
+
+           
+        
             if ($this->task->update()) {
                 http_response_code(200);
-                echo json_encode(array("message" => "Status da tarefa atualizado!"));
+                echo json_encode(array("message" => "Tarefa atualizada!"));
             } else {
                 http_response_code(503);
                 echo json_encode(array("message" => "Não foi possível atualizar sua tarefa!"));
