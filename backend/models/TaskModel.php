@@ -59,7 +59,7 @@ class TaskModel {
         return false;
     }
 
-    public function updateStatus() {
+    public function update() {
         $query = "UPDATE " . $this->table_name . " SET status = ? WHERE id = ?;";
 
         if ($stmt = $this->conn->prepare($query)) {
