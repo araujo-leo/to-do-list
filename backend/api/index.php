@@ -4,18 +4,41 @@ header("Content-Type: application/json; charset=UTF-8");
 
 require_once '../config/Routes.php';
 
-// Instanciar a classe Routes
-$routes = new Routes();
+class Router {
+    private $routes = [];
 
-// Registrar rotas
-$routes->registerRoutes();
+    public function get($route, $callback) {
+        $this->addRoute('GET', $route, $callback);
+    }
 
-// Capturar a URI da requisição
-$requestUri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
+    public function post($route, $callback) {
+        $this->addRoute('POST', $route, $callback);
+    }
 
-// Remover a subpasta do caminho da URI
-$baseFolder = '/to-do-list/backend/api';
-$requestUri = str_replace($baseFolder, '', $requestUri);
+    private function addRoute($method, $route, $callback) {
+        $this->routes[] = compact('method', 'route', 'callback');
+    }
 
-// Tratar a requisição
-$routes->handleRequest($requestUri);
+    public function dispatch() {
+        $requestMethod = $_SERVER['REQUEST_METHOD'];
+        $requestUri = $_SERVER['REQUEST_URI'];
+    
+        $basePath = '/to-do-list/backend/api';
+        $requestUri = str_replace($basePath, '', $requestUri);
+        
+        foreach ($this->routes as $route) {
+            if ($route['method'] === $requestMethod && $route['route'] === $requestUri) {
+                call_user_func($route['callback']);
+                return;
+            }
+        }
+    
+        http_response_code(404);
+        echo json_encode(["message" => "Rota não encontrada"]);
+    }
+}
+
+$router = new Router();
+Routes::init($router);
+
+$router->dispatch();
