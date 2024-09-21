@@ -17,7 +17,6 @@ class TaskController
 
     public function list() {
         $tasks = $this->task->list();
-
         if ($tasks !== false) {
             http_response_code(200);
             echo json_encode(array("message" => "Tarefas obtidas!", "data" => $tasks));
@@ -63,8 +62,6 @@ class TaskController
                 $this->task->status = $data->status;
             }
 
-           
-        
             if ($this->task->update()) {
                 http_response_code(200);
                 echo json_encode(array("message" => "Tarefa atualizada!"));

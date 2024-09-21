@@ -22,11 +22,11 @@ class Routes {
         });
 
         
-        /* $router->delete('/task', function() {
+        $router->delete('/task', function() {
             require_once "../controllers/TaskController.php";
             $taskController = new TaskController();
             $taskController->delete();
-        }); */
+        });
 
         $router->post('/login', function() {
             echo "Rota de login";

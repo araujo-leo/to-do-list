@@ -19,6 +19,10 @@ class Router {
         $this->addRoute('PUT', $route, $callback);
     }
 
+    public function delete($route, $callback) {
+        $this->addRoute('DELETE', $route, $callback);
+    }
+
     private function addRoute($method, $route, $callback) {
         $this->routes[] = compact('method', 'route', 'callback');
     }
