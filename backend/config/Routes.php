@@ -3,6 +3,7 @@
 class Routes {
 
     public static function init($router) {
+        /* Rotas das tasks */
         $router->get('/task', function() {
             require_once "../controllers/TaskController.php";
             $taskController = new TaskController();
@@ -21,15 +22,17 @@ class Routes {
             $taskController->update(); 
         });
 
-        
         $router->delete('/task', function() {
             require_once "../controllers/TaskController.php";
             $taskController = new TaskController();
             $taskController->delete();
         });
 
-        $router->post('/login', function() {
-            echo "Rota de login";
+        /* Rotas de usuários */
+        $router->post('/register', function() {
+            require_once "../controllers/UserController.php";
+            $userController = new UserController();
+            $userController->create();
         });
     }
 }
