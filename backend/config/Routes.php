@@ -34,5 +34,12 @@ class Routes {
             $userController = new UserController();
             $userController->create();
         });
+
+        /* Rotas de usuários */
+        $router->post('/login', function() {
+            require_once "../controllers/UserController.php";
+            $userController = new UserController();
+            $userController->login();
+        });
     }
 }
