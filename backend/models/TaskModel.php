@@ -39,8 +39,6 @@ class TaskModel
 
         $query = "INSERT INTO " . $this->table_name . " (name, user_id) VALUES (?,?);";
 
-        var_dump($this->user_id);
-
         if ($stmt = $this->conn->prepare($query)) {
             $stmt->bind_param("si", $this->name, $this->user_id);
 
@@ -65,41 +63,45 @@ class TaskModel
 
     public function update()
     {
-        if (empty($this->id)) {
-            return false;
+        if (empty($this->id) || empty($this->user_id)) {
+            return array("status" => "error", "message" => "Dados Incompletos.");
         }
-
+    
         if (!empty($this->name) && !empty($this->status)) {
-            $query = "UPDATE " . $this->table_name . " SET status = ?, name = ? WHERE id = ?;";
+            $query = "UPDATE " . $this->table_name . " SET status = ?, name = ? WHERE id = ? AND user_id = ?;";
         } elseif (!empty($this->id) && !empty($this->name) && empty($this->status)) {
-            $query = "UPDATE " . $this->table_name . " SET name = ? WHERE id = ?;";
+            $query = "UPDATE " . $this->table_name . " SET name = ? WHERE id = ? AND user_id = ?;";
         } elseif (!empty($this->id) && empty($this->name) && !empty($this->status)) {
-            $query = "UPDATE " . $this->table_name . " SET status = ? WHERE id = ?;";
+            $query = "UPDATE " . $this->table_name . " SET status = ? WHERE id = ? AND user_id = ?;";
         } else {
-            return false;
+            return array("status" => "error", "message" => "Dados Incompletos.");
         }
-
+    
         if ($stmt = $this->conn->prepare($query)) {
             if (!empty($this->name) && !empty($this->status)) {
-                $stmt->bind_param("isi", $this->status, $this->name, $this->id);
+                $stmt->bind_param("ssii", $this->status, $this->name, $this->id, $this->user_id);
             } elseif (!empty($this->id) && !empty($this->name) && empty($this->status)) {
-                $stmt->bind_param("si", $this->name, $this->id);
+                $stmt->bind_param("sii", $this->name, $this->id, $this->user_id);
             } elseif (!empty($this->id) && empty($this->name) && !empty($this->status)) {
-                $stmt->bind_param("ii", $this->status, $this->id);
+                $stmt->bind_param("sii", $this->status, $this->id, $this->user_id);
             }
-
+    
             if ($stmt->execute()) {
-                return $stmt->affected_rows > 0;
+                $affectedRows = $stmt->affected_rows;
+                $stmt->close();
+    
+                if ($affectedRows > 0) {
+                    return array("status" => "success", "message" => "Tarefa atualizada com sucesso.");
+                } else {
+                    return array("status" => "info", "message" => "Nenhuma alteração foi feita.");
+                }
             } else {
-                return false;
+                return array("status" => "error", "message" => "Não foi possível atualizar a tarefa.");
             }
-
-            $stmt->close();
+        } else {
+            return array("status" => "error", "message" => "Erro ao preparar a query.");
         }
-
-        return false;
     }
-
     public function deleteTask()
     {
         $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
