@@ -117,4 +117,22 @@ class UserModel
 
         return false;
     }
+
+    public function validateToken($token) {
+        $query = "SELECT user_id FROM token WHERE token = ? LIMIT 1";
+    
+        if ($stmt = $this->conn->prepare($query)) {
+            $stmt->bind_param("s", $token);
+            $stmt->execute();
+            $result = $stmt->get_result();
+            $stmt->close();
+    
+            if ($result->num_rows > 0) {
+                $user = $result->fetch_assoc();
+                return $user['user_id']; 
+            }
+        }
+    
+        return false; 
+    }
 }

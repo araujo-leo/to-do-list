@@ -4,15 +4,35 @@ header("Content-Type: application/json; charset=UTF-8");
 
 include_once '../config/Database.php';
 include_once '../models/TaskModel.php';
+include_once '../models/UserModel.php';
+
 
 class TaskController
 {
     private $task;
+    private $user;
 
     public function __construct() {
         $database = new Database();
         $db = $database->getConnection();
         $this->task = new TaskModel($db);
+        $this->user = new UserModel($db);
+    }
+
+    private function authenticate() {   
+        $headers = apache_request_headers();
+        if (isset($headers['Authorization'])) {
+            $token = str_replace('Bearer ', '', $headers['Authorization']);
+
+            $userId = $this->user->validateToken($token);
+            if ($userId) {
+                return $userId; 
+            }
+        }
+
+        http_response_code(401); 
+        echo json_encode(["message" => "Acesso negado. Token inválido ou ausente."]);
+        exit();
     }
 
     public function list() {
@@ -28,6 +48,8 @@ class TaskController
 
     public function create() {
         $data = json_decode(file_get_contents("php://input"));
+
+        $this->task->user_id = $this->authenticate();
 
         if (!empty($data->name)) {
             $this->task->name = $data->name;

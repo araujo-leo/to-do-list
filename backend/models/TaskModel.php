@@ -7,6 +7,7 @@ class TaskModel
     public $id;
     public $name;
     public $status;
+    public $user_id;
 
     public function __construct($db)
     {
@@ -36,10 +37,12 @@ class TaskModel
     public function create()
     {
 
-        $query = "INSERT INTO " . $this->table_name . " (name) VALUES (?);";
+        $query = "INSERT INTO " . $this->table_name . " (name, user_id) VALUES (?,?);";
+
+        var_dump($this->user_id);
 
         if ($stmt = $this->conn->prepare($query)) {
-            $stmt->bind_param("s", $this->name);
+            $stmt->bind_param("si", $this->name, $this->user_id);
 
             if ($stmt->execute()) {
                 if ($stmt->affected_rows > 0) {
