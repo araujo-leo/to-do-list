@@ -1,83 +1,122 @@
 <?php
 include_once '../config/Database.php';
 include_once '../models/TaskModel.php';
+include_once '../models/UserModel.php';
 
-$database = new Database();
-$db = $database->getConnection();
+class TaskController
+{
+    private $task;
+    private $user;
 
-$task = new TaskModel($db);
+    public function __construct()
+    {
+        $database = new Database();
+        $db = $database->getConnection();
+        $this->task = new TaskModel($db);
+        $this->user = new UserModel($db);
+    }
 
-$method = $_SERVER['REQUEST_METHOD'];
+    private function authenticate()
+    {
+        $headers = apache_request_headers();
+        if (isset($headers['Authorization'])) {
+            $token = str_replace('Bearer ', '', $headers['Authorization']);
 
-switch ($method) {
-    case 'GET':
-        $tasks = $task->list();
+            $userId = $this->user->validateToken($token);
+            if ($userId) {
+                return $userId;
+            }
+        }
 
+        http_response_code(401);
+        echo json_encode(["message" => "Acesso negado. Token inválido ou ausente."]);
+        exit();
+    }
+
+    public function list()
+    {
+        $tasks = $this->task->list();
         if ($tasks !== false) {
             http_response_code(200);
             echo json_encode(array("message" => "Tarefas obtidas!", "data" => $tasks));
         } else {
-            http_response_code(500); 
+            http_response_code(500);
             echo json_encode(array("message" => "Não foi possível obter as tarefas."));
         }
-        break;
-        case 'POST':
-            $data = json_decode(file_get_contents("php://input"));
-    
-            if (!empty($data->name)) {
-                $task->name = $data->name;
-    
-                if ($task->create()) {
-                    http_response_code(201);
-                    echo json_encode(array("message" => "Tarefa criada!"));
-                } else {
-                    http_response_code(503);
-                    echo json_encode(array("message" => "Não foi possível criar a tarefa!"));
-                }
+    }
+
+    public function create()
+    {
+        $data = json_decode(file_get_contents("php://input"));
+
+        $this->task->user_id = $this->authenticate();
+
+        if (!empty($data->name)) {
+            $this->task->name = $data->name;
+
+            if ($this->task->create()) {
+                http_response_code(201);
+                echo json_encode(array("message" => "Tarefa criada!"));
+            } else {
+                http_response_code(503);
+                echo json_encode(array("message" => "Não foi possível criar a tarefa!"));
+            }
+        } else {
+            http_response_code(400);
+            echo json_encode(array("message" => "Dados incompletos!"));
+        }
+    }
+
+    public function update()
+    {
+        $data = json_decode(file_get_contents("php://input"));
+
+        $this->task->user_id = $this->authenticate();
+
+        if (!empty($data->id) && (!empty($data->status) || !empty($data->name))) {
+
+            $this->task->id = $data->id;
+
+            if (isset($data->name)) {
+                $this->task->name = $data->name;
+            }
+
+            if (isset($data->status)) {
+                $this->task->status = $data->status;
+            }
+
+            $response = $this->task->update($this->user);
+
+            if (isset($response['status'])) {
+                http_response_code($response['status'] === 'success' ? 200 : 400);
+                echo json_encode($response);
+            } else {
+                http_response_code(503);
+                echo json_encode(["message" => "Erro ao atualizar task"]);
+            }
+
+        } else {
+            http_response_code(400);
+            echo json_encode(array("message" => "Dados incompletos!"));
+        }
+    }
+
+    public function delete()
+    {
+        $data = json_decode(file_get_contents("php://input"));
+
+        if (!empty($data->id)) {
+            $this->task->id = $data->id;
+            if ($this->task->deleteTask()) {
+                http_response_code(200);
+                echo json_encode(array("message" => "Tarefa deletada com sucesso!"));
             } else {
                 http_response_code(400);
-                echo json_encode(array("message" => "Dados incompletos!"));
+                echo json_encode(array("message" => "Não foi possível deletar a tarefa, por favor tente novamente."));
             }
-            break;
-            
-        case 'PUT':
-            $data = json_decode(file_get_contents("php://input"));
-            if (!empty($data->id) && !empty($data->status)) {
-                $task->id = $data->id;
-                $task->status = $data->status;
-    
-                if ($task->updateStatus()) {
-                    http_response_code(200);
-                    echo json_encode(array("message" => "Status da tarefa atualizados!"));
-                } else {
-                    http_response_code(503);
-                    echo json_encode(array("message" => "Não foi possível atualizar sua tarefa!"));
-                }
-            } else {
-                http_response_code(400);
-                echo json_encode(array("message" => "Dados incompletos!"));
-            }
-            break;
-            
-        case 'DELETE':
-            $data = json_decode(file_get_contents("php://input"));
-            if(!empty($data->id)){
-                $task->id = $data->id;
-                if($task->deleteTask()){
-                    http_response_code(200);
-                    echo json_encode(array("message" => "Tarefa deletada com sucesso!"));
-                }else{
-                    http_response_code(400);
-                    echo json_encode(array("message" => "Não foi possível deletar a tarefa, por favor tente novamente."));
-                }
-            }
-            break;
-        
-    default:
-    http_response_code(405);
-    echo json_encode(array("message" => "Método não permitido."));
-    break;
-
-
+        } else {
+            http_response_code(400);
+            echo json_encode(array("message" => "Dados incompletos!"));
+        }
+    }
 }
-?>
