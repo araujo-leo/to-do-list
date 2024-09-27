@@ -43,22 +43,23 @@ class TaskModel
             $stmt->bind_param("si", $this->name, $this->user_id);
 
             if ($stmt->execute()) {
-                if ($stmt->affected_rows > 0) {
-                    $stmt->close();
-                    return true;
+                $affectedRows = $stmt->affected_rows;
+                $stmt->close();
+                if ($affectedRows > 0) {
+                    return array("status" => "success", "message" => "Tarefa criada com sucesso.");
                 } else {
-                    $stmt->close();
-                    return false;
+                    return array("status" => "error", "message" => "Não foi possível criar a tarefa.");
                 }
             } else {
                 $stmt->close();
-                return false;
+                return array("status" => "error", "message" => "Não foi possível criar a tarefa.");
             }
 
             $stmt->close();
         }
 
-        return false;
+        return array("status" => "error", "message" => "Erro ao preparar a query.");
+
     }
 
     public function update()
@@ -104,7 +105,7 @@ class TaskModel
     }
     public function deleteTask()
     {
-        $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+        $query = "DELETE FROM " . $this->table_name . " WHERE id = ? AND user";
 
         if ($stmt = $this->conn->prepare($query)) {
             $stmt->bind_param("i", $this->id);
@@ -112,18 +113,17 @@ class TaskModel
             if ($stmt->execute()) {
                 if ($stmt->affected_rows > 0) {
                     $stmt->close();
-                    return true;
+                    return array("status" => "success", "message" => "Tarefa excluída com sucesso.");
                 } else {
                     $stmt->close();
-                    return false;
+                    return array("status" => "error", "message" => "Não foi possível atualizar a tarefa.");
                 }
             } else {
                 $stmt->close();
-                return false;
+                return array("status" => "error", "message" => "Não foi possível atualizar a tarefa.");
             }
         }
-
-        return false;
+        return array("status" => "error", "message" => "Não foi possível atualizar a tarefa.");
     }
 
 }
