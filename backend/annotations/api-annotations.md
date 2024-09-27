@@ -76,11 +76,6 @@
 
 ---
 
-## Problemas Conhecidos
-- As rotas de criação e deleção ainda não funcionam corretamente.
-
----
-
 ## Considerações Finais
 - A autenticação deve ser realizada em rotas que modificam dados.
 - Adicionar tratamento de erros para entradas inválidas.

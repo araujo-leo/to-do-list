@@ -105,7 +105,7 @@ class TaskModel
     }
     public function deleteTask()
     {
-        $query = "DELETE FROM " . $this->table_name . " WHERE id = ?";
+        $query = "DELETE FROM " . $this->table_name . " WHERE id = ? AND user";
 
         if ($stmt = $this->conn->prepare($query)) {
             $stmt->bind_param("i", $this->id);
@@ -113,18 +113,17 @@ class TaskModel
             if ($stmt->execute()) {
                 if ($stmt->affected_rows > 0) {
                     $stmt->close();
-                    return true;
+                    return array("status" => "success", "message" => "Tarefa excluída com sucesso.");
                 } else {
                     $stmt->close();
-                    return false;
+                    return array("status" => "error", "message" => "Não foi possível atualizar a tarefa.");
                 }
             } else {
                 $stmt->close();
-                return false;
+                return array("status" => "error", "message" => "Não foi possível atualizar a tarefa.");
             }
         }
-
-        return false;
+        return array("status" => "error", "message" => "Não foi possível atualizar a tarefa.");
     }
 
 }
