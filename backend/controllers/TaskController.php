@@ -51,19 +51,16 @@ class TaskController
 
         $this->task->user_id = $this->authenticate();
 
-        if (!empty($data->name)) {
-            $this->task->name = $data->name;
+        $this->task->name = $data->name;
 
-            if ($this->task->create()) {
-                http_response_code(201);
-                echo json_encode(array("message" => "Tarefa criada!"));
-            } else {
-                http_response_code(503);
-                echo json_encode(array("message" => "Não foi possível criar a tarefa!"));
-            }
+        $response = $this->task->create($this->user);
+
+        if (isset($response['status'])) {
+            http_response_code($response['status'] === 'success' ? 200 : 400);
+            echo json_encode($response);
         } else {
-            http_response_code(400);
-            echo json_encode(array("message" => "Dados incompletos!"));
+            http_response_code(503);
+            echo json_encode(["message" => "Erro ao atualizar task"]);
         }
     }
 
