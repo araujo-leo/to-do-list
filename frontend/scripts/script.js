@@ -1,5 +1,11 @@
-
 document.addEventListener('DOMContentLoaded', function () {
+    if (window.location.pathname === '/to-do-list/frontend/index.html') {
+        if (localStorage.getItem('user_token') == null) {
+            window.location.href = 'pages/login-sigin.html';
+
+        };
+    };
+
 
     //REGISTER
 
@@ -76,6 +82,9 @@ document.addEventListener('DOMContentLoaded', function () {
             .then(result => {
 
                 if (result.status === 'success') {
+                    //console.log(result.token);
+                    localStorage.setItem('user_token', result.token);
+                    //console.log(localStorage.getItem('user_token'));
                     window.location.href = "../index.html";
                 } else {
                     console.log("erro:", result.message);
