@@ -101,6 +101,25 @@ class UserModel
         }
     }
 
+    public function logout($token){
+        $query = "DELETE FROM token WHERE token = ?";
+
+        if ($stmt = $this->conn->prepare($query)){
+            $stmt->bind_param("s", $token);
+
+            if($stmt->execute()){
+                if($stmt->affected_rows > 0){
+                    return array("status" => "success", "message" => "Logout realizado com sucesso!");
+                }
+                else{
+                    return array("status" => "error", "message" => "Token não encontrado ou usuário já deslogado.");
+                }
+            }
+            $stmt->close();
+        }
+        return array("status" => "error", "message" => "Erro ao realizar logout.");
+    }
+
     private function storeToken($id, $token)
     {
         $query = "INSERT INTO token (user_id, token) VALUES (?, ?)";

@@ -35,11 +35,16 @@ class Routes {
             $userController->create();
         });
 
-        /* Rotas de usuários */
         $router->post('/login', function() {
             require_once "../controllers/UserController.php";
             $userController = new UserController();
             $userController->login();
+        });
+
+        $router->post('/logout', function() {
+            require_once "../controllers/UserController.php";
+            $userController = new UserController();
+            $userController->logout();
         });
     }
 }

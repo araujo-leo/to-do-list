@@ -59,4 +59,25 @@ class UserController {
             echo json_encode(["message" => "Dados incompletos!"]);
         }
     }
+
+    public function logout(){
+        $headers = apache_request_headers();
+
+        if(isset($headers['Authorization'])){
+            $token = str_replace('Bearer ', '', $headers['Authorization']);
+
+            $response = $this->user->logout($token);
+
+            if(isset($response['status'])){
+                http_response_code($response['status'] === 'success' ? 200:400);
+                echo json_encode($response);
+            }else{
+                http_response_code(400);
+                echo json_encode(["message"=>"Erro ao efetuar logout."]);
+            }
+        }else{
+            http_response_code(400);
+            echo json_encode(["message" => "Token não fornecido"]);
+        }
+    }
 }
