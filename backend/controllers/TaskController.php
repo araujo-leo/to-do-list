@@ -35,13 +35,23 @@ class TaskController
 
     public function list()
     {
-        $tasks = $this->task->list();
-        if ($tasks !== false) {
-            http_response_code(200);
-            echo json_encode(array("message" => "Tarefas obtidas!", "data" => $tasks));
-        } else {
-            http_response_code(500);
-            echo json_encode(array("message" => "Não foi possível obter as tarefas."));
+        $data = json_decode(file_get_contents("php://input"));
+        if(isset($data->status) && !empty($data->status)){
+            $this->task->status = $data->status;
+        }
+
+        $this->task->user_id = $this->authenticate();
+    
+        $response = $this->task->list();
+
+        var_dump($response);
+
+        if(isset($response['status'])){
+            http_response_code($response['status'] === 'success' ? 200 : 400);
+            echo json_encode($response);
+        }else {
+            http_response_code(503);
+            echo json_encode(["message" => "Erro ao obter tasks."]);
         }
     }
 

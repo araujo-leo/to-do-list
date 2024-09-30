@@ -16,21 +16,38 @@ class TaskModel
 
     public function list()
     {
-        $query = "SELECT * FROM " . $this->table_name;
-        $stmt = $this->conn->query($query);
+        var_dump($this->status);
 
-        if ($stmt) {
-            if ($stmt->num_rows > 0) {
-                $result = $stmt->fetch_all(MYSQLI_ASSOC);
-                $stmt->close();
+        if (isset($this->status) && !empty($this->status) && !empty($this->user_id) && isset($this->user_id)) {
+            $query = "SELECT * FROM " . $this->table_name . " WHERE status = ? AND user_id = ?";
+        } else {
+            $query = "SELECT * FROM " . $this->table_name . " WHERE user_id = ?";
+        }
 
-                return $result;
+        if ($stmt = $this->conn->prepare($query)) {
+            if (isset($this->status) && !empty($this->status)) {
+                $stmt->bind_param("si", $this->status, $this->user_id);
+            } else if (!empty($this->user_id) && isset($this->user_id)) {
+                $stmt->bind_param("i", $this->user_id);
+            }
+
+            if ($stmt->execute()) {
+                $result = $stmt->get_result();
+
+                if ($result->num_rows > 0) {
+                    $tasks = $result->fetch_all(MYSQLI_ASSOC);
+                    $stmt->close();
+
+                    return array("status" => "success", "message" => "Tarefas obtidas com sucesso.", "data" => $tasks);
+                } else {
+                    $stmt->close();
+                    return array("status" => "info", "message" => "Nenhuma tarefa encontrada.");
+                }
             } else {
-                $stmt->close();
-                return false;
+                return array("status" => "error", "message" => "Não foi possível obter as tarefas.");
             }
         } else {
-            return false;
+            return array("status" => "error", "message" => "Erro ao preparar a query.");
         }
     }
 
@@ -67,7 +84,7 @@ class TaskModel
         if (empty($this->id) || empty($this->user_id)) {
             return array("status" => "error", "message" => "Dados Incompletos.");
         }
-    
+
         if (!empty($this->name) && !empty($this->status)) {
             $query = "UPDATE " . $this->table_name . " SET status = ?, name = ? WHERE id = ? AND user_id = ?;";
         } elseif (!empty($this->id) && !empty($this->name) && empty($this->status)) {
@@ -77,7 +94,7 @@ class TaskModel
         } else {
             return array("status" => "error", "message" => "Dados Incompletos.");
         }
-    
+
         if ($stmt = $this->conn->prepare($query)) {
             if (!empty($this->name) && !empty($this->status)) {
                 $stmt->bind_param("ssii", $this->status, $this->name, $this->id, $this->user_id);
@@ -86,11 +103,11 @@ class TaskModel
             } elseif (!empty($this->id) && empty($this->name) && !empty($this->status)) {
                 $stmt->bind_param("sii", $this->status, $this->id, $this->user_id);
             }
-    
+
             if ($stmt->execute()) {
                 $affectedRows = $stmt->affected_rows;
                 $stmt->close();
-    
+
                 if ($affectedRows > 0) {
                     return array("status" => "success", "message" => "Tarefa atualizada com sucesso.");
                 } else {
