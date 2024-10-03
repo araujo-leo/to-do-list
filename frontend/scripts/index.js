@@ -32,38 +32,26 @@ function logout() {
 function verify_logout(data) {
     fetch('http://localhost/to-do-list/backend/api/logout',
         {
-
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json',
-                'Authorization': `${JSON.stringify("Bearer "+ data)}`
-            }
+                'Authorization': 'Bearer ' + data             }
         })
-
-
-
         .then(response => response.json())
         .then(result => {
 
             if (result.status === 'success') {
-
                 window.location.href = 'pages/login-sigin.html';
-
-                console.log('Sucesso')
+                console.log('Sucesso');
             } else {
                 console.log("erro:", result.message);
-                //console.log(localStorage.getItem('user_token'));
-                console.log(`${JSON.stringify("Bearer "+ data)}`);
-
+                console.log('Bearer ' + data);
             }
-
-
         })
         .catch(error => {
             console.error("Erro na requisição:", error);
         });
 }
-
 
    
 
