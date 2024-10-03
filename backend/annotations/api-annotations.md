@@ -34,7 +34,6 @@
 - **RETORNA**:
   - `status`: string (success/error)
   - `message`: string (mensagem sobre o resultado do login)
-  - `token`: string (token 64 bytes caso o login seja efetuado)
 
 ---
 
