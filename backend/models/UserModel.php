@@ -34,7 +34,8 @@ class UserModel
 
         $query = "INSERT INTO " . $this->table_name . " (name, email, password) VALUES (?, ?, ?)";
         if ($stmt = $this->conn->prepare($query)) {
-            $stmt->bind_param("sss", $data->name, $data->email, password_hash($data->password, PASSWORD_DEFAULT));
+            $passwordHash =  password_hash($data->password, PASSWORD_DEFAULT);
+            $stmt->bind_param("sss", $data->name, $data->email, $passwordHash);
             if ($stmt->execute()) {
                 $stmt->close();
                 return array("status" => "success", "message" => "Usuário criado com sucesso.");
