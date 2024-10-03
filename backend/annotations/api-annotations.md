@@ -26,6 +26,18 @@
 
 ---
 
+## Rota: /logout
+- **Descrição**: Esta rota permite que um usuário existente faça logout no sistema.
+- **Método**: POST
+- **Cabeçalho**:
+  - `Authorization`: string (Bearer token)
+- **RETORNA**:
+  - `status`: string (success/error)
+  - `message`: string (mensagem sobre o resultado do login)
+  - `token`: string (token 64 bytes caso o login seja efetuado)
+
+---
+
 ## Rota: /task
 - **Descrição**: Esta rota permite a visualização de todas as tarefas cadastradas no sistema.
 - **Método**: GET
