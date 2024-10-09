@@ -49,16 +49,13 @@ class UserModel
     public function login($data)
     {
         $sql = "SELECT id, name, email, password FROM " . $this->table_name . " WHERE email = ? LIMIT 1";
-
         if ($stmt = $this->conn->prepare($sql)) {
             $stmt->bind_param("s", $data->email);
             $stmt->execute();
             $result = $stmt->get_result();
             $stmt->close();
-
             if ($result->num_rows > 0) {
                 $usuario = $result->fetch_assoc();
-
                 if (password_verify($data->password, $usuario['password'])) {
                     $tokenCheckQuery = "SELECT token FROM token WHERE user_id = ?";
                     if ($tokenStmt = $this->conn->prepare($tokenCheckQuery)) {
@@ -66,7 +63,6 @@ class UserModel
                         $tokenStmt->execute();
                         $tokenResult = $tokenStmt->get_result();
                         $tokenStmt->close();
-
                         if ($tokenResult->num_rows == 0) {
                             $token = bin2hex(random_bytes(32));
                             if ($this->storeToken($usuario['id'], $token)) {
@@ -104,7 +100,6 @@ class UserModel
 
     public function logout($token){
         $query = "DELETE FROM token WHERE token = ?";
-
         if ($stmt = $this->conn->prepare($query)){
             $stmt->bind_param("s", $token);
 
@@ -124,35 +119,29 @@ class UserModel
     private function storeToken($id, $token)
     {
         $query = "INSERT INTO token (user_id, token) VALUES (?, ?)";
-
         if ($stmt = $this->conn->prepare($query)) {
             $stmt->bind_param("is", $id, $token);
-
             if ($stmt->execute()) {
                 $stmt->close();
                 return true;
             }
             $stmt->close();
         }
-
         return false;
     }
 
     public function validateToken($token) {
         $query = "SELECT user_id FROM token WHERE token = ? LIMIT 1";
-    
         if ($stmt = $this->conn->prepare($query)) {
             $stmt->bind_param("s", $token);
             $stmt->execute();
             $result = $stmt->get_result();
             $stmt->close();
-    
             if ($result->num_rows > 0) {
                 $user = $result->fetch_assoc();
                 return $user['user_id']; 
             }
         }
-    
         return false; 
     }
 }
