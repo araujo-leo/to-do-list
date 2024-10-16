@@ -16,8 +16,6 @@ class TaskModel
 
     public function list()
     {
-        var_dump($this->status);
-
         if (isset($this->status) && !empty($this->status) && !empty($this->user_id) && isset($this->user_id)) {
             $query = "SELECT * FROM " . $this->table_name . " WHERE status = ? AND user_id = ?";
         } else {
