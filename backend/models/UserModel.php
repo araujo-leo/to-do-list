@@ -19,7 +19,6 @@ class UserModel
 
     public function create($data)
     {
-        // Verifica se o e-mail já existe
         $query = "SELECT id FROM " . $this->table_name . " WHERE email = ? LIMIT 1";
         if ($stmt = $this->conn->prepare($query)) {
             $stmt->bind_param("s", $data->email);
