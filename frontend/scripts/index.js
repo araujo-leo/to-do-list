@@ -7,8 +7,10 @@ function verify_session() {
     if (localStorage.getItem('user_token') == null) {
         window.location.href = 'pages/login-sigin.html';
 
-    };
-    listeners();
+    }else{
+        listeners();
+    }
+   
 }
 
 function listeners() {
