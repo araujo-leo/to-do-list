@@ -6,11 +6,9 @@ document.addEventListener('DOMContentLoaded', verify_session());
 function verify_session() {
     if (localStorage.getItem('user_token') == null) {
         window.location.href = 'pages/login-sigin.html';
-
     }else{
         listeners();
     }
-   
 }
 
 function listeners() {
@@ -19,16 +17,12 @@ function listeners() {
     logout_form.addEventListener('submit', function (event) {
         event.preventDefault();
         logout();
-
-
     });
 }
 
 
 function logout() {
     const data_logout = localStorage.getItem('user_token');
-    
-
     verify_logout(data_logout);
 }
 
